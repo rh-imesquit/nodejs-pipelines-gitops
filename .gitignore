@@ -1,0 +1,12 @@
+app/node_modules/
+
+app/package-lock.json
+
+app/logs
+app/*.log
+app/npm-debug.log*
+
+app/coverage/
+
+.DS_Store
+Thumbs.db
