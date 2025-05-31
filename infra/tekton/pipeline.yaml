@@ -1,0 +1,65 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: nodejs-ci-pipeline
+spec:
+  params:
+    - name: repo-url
+      description: URL do repositório Git
+      type: string
+    - name: image-name
+      description: Nome da imagem que será gerada
+      type: string
+  workspaces:
+    - name: shared-workspace
+
+  tasks:
+    - name: clone-repo
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: url
+          value: $(params.repo-url)
+        - name: deleteExisting
+          value: "true"
+
+    - name: test-nodejs
+      runAfter: [clone-repo]
+      taskRef:
+        name: nodejs-tests
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+
+    - name: build-image
+      runAfter: [test-nodejs]
+      taskRef:
+        name: kaniko-build
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: DOCKERFILE
+          value: app/src/docker/Containerfile
+        - name: CONTEXT
+          value: app
+        - name: IMAGE_TARBALL
+          value: /workspace/output/image.tar
+
+    - name: push-image
+      runAfter: [build-image]
+      taskRef:
+        name: kaniko-push
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: IMAGE
+          value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/$(params.image-name)
+        - name: IMAGE_TARBALL
+          value: /workspace/output/image.tar

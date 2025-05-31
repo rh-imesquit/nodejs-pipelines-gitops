@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: kaniko-push
+spec:
+  description: "Faz o push da imagem previamente construída (arquivo .tar) usando Kaniko"
+  params:
+    - name: IMAGE
+      description: Imagem de destino
+      type: string
+    - name: IMAGE_TARBALL
+      description: Caminho do arquivo .tar da imagem construída
+      default: /workspace/output/image.tar
+      type: string
+  workspaces:
+    - name: output
+  steps:
+    - name: push-image
+      image: gcr.io/kaniko-project/executor:latest
+      workingDir: $(workspaces.output.path)
+      args:
+        - --tarPath=$(params.IMAGE_TARBALL)
+        - --destination=$(params.IMAGE)

@@ -1,0 +1,26 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: nodejs-ci-pipelinerun
+spec:
+  pipelineRef:
+    name: nodejs-ci-pipeline
+  params:
+    - name: repo-url
+      value: https://github.com/rh-imesquit/nodejs-pipelines-gitops.git
+    - name: image-name
+      value: nodejs-lab-app
+  workspaces:
+    - name: shared-workspace
+      volumeClaimTemplate:
+        metadata:
+          name: pipeline-pvc
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 1Gi
+  taskRunTemplate:
+    podTemplate:
+      securityContext:
+        fsGroup: 65532

@@ -1,0 +1,30 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: kaniko-build
+spec:
+  description: "Task para construir uma imagem em formato tarball usando Kaniko"
+  params:
+    - name: DOCKERFILE
+      description: Caminho até o Dockerfile
+      default: docker/Containerfile
+    - name: CONTEXT
+      description: Caminho do contexto de build
+      default: app/src
+    - name: IMAGE_TARBALL
+      description: Caminho de saída do tarball da imagem
+      default: /workspace/output/image.tar
+  workspaces:
+    - name: source
+      description: Código-fonte
+    - name: output
+      description: Local onde a imagem tar será armazenada
+  steps:
+    - name: build-image
+      image: gcr.io/kaniko-project/executor:latest
+      workingDir: $(workspaces.source.path)
+      args:
+        - --dockerfile=$(params.DOCKERFILE)
+        - --context=$(workspaces.source.path)/$(params.CONTEXT)
+        - --tarPath=$(params.IMAGE_TARBALL)
+        - --no-push

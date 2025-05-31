@@ -1,0 +1,20 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: nodejs-tests
+spec:
+  description: "Roda os testes automatizados da aplicação Node.js com Jest"
+  workspaces:
+    - name: source
+      description: Código-fonte clonado do repositório
+  steps:
+    - name: run-tests
+      image: node:22-alpine
+      workingDir: $(workspaces.source.path)/app/src
+      script: |
+        #!/bin/sh
+        echo "Instalando dependências..."
+        npm install
+
+        echo "Executando testes..."
+        npm test
