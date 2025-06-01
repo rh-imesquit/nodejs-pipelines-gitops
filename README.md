@@ -2,10 +2,10 @@
 
 ### <h2 style="color: #e5b449;">What is</h2>
 
-**Red Hat OpenShift Pipelines** is a.
+**Red Hat OpenShift Pipelines** is a Tekton-based solution that enables the creation and execution of continuous integration and delivery (CI/CD) workflows natively on OpenShift, using containers for each step of the pipeline. It offers a declarative, scalable, and isolated approach to automating builds, tests, and deployments, without the need for dedicated servers as in traditional systems, promoting greater security, reproducibility, and integration with the Kubernetes ecosystem.
 <br>
 
-**Red Hat OpenShift GitOps** is a.
+**Red Hat OpenShift GitOps** is a solution based on Argo CD that enables the management of configuration and the desired state of OpenShift applications and clusters from Git repositories. It adopts the GitOps model, where Git serves as the single source of truth, ensuring that any changes to versioned manifests are automatically synchronized with the runtime environment. This provides greater control, auditability, consistency, and automation in the continuous delivery process, while also facilitating rollback and observability of changes in the environment.
 <br>
 
 ### <h2 style="color: #e5b449;">Versions used in this tutorial</h2>
@@ -14,7 +14,7 @@
 |---------------------------------------------|---------|
 | Red Hat OpenShift Container Platform        | 4.17    |
 | Red Hat OpenShift Pipelines                 | 1.18    |
-| Red Hat OpenShift GitOps                    | 2.15    |
+| Red Hat OpenShift GitOps                    | 1.16    |
 
 ### <h2 style="color: #e5b449;">How-to install and configure Red Hat OpenShift Pipelines</h2>
 
@@ -146,3 +146,33 @@ $ skopeo list-tags --tls-verify=false docker://$REGISTRY/app/nodejs-lab-app
 }*
 
 ### <h2 style="color: #e5b449;">How-to install and configure Red Hat OpenShift GitOps</h2>
+
+We need to install the operator. To do this, go to the left-hand side menu and access *Operators > Operator Hub*. In the search field, look for Pipelines and select the option **Red Hat OpenShift GitOps**. Finally, click the *Install button*.
+
+![Installing pipelines operator](./images/gitops/01%20-%20Installing%20GitOps%20Operator.png)
+
+A form will then be displayed with options to configure the operator installation. Keep all the default options and click the *Install button*.
+
+![Installing pipelines operator](./images/gitops/02%20-%20Installing%20GitOps%20Operator.png)
+
+Wait until the installation is successfully completed. Once finished, access the main panel of the Red Hat OpenShift GitOps operator.
+
+![Installing pipelines operator](./images/gitops/03%20-%20Installing%20GitOps%20Operator.png)
+
+Access the ArgoCD tab and see that the openshift-gitops resource was created automatically. This is the ArgoCD instance we will use.
+
+![Installing pipelines operator](./images/gitops/04%20-%20ArgoCD%20resource%20created.png)
+
+You can see that a route has been defined to access the ArgoCD portal through the browser.
+
+![Installing pipelines operator](./images/gitops/05%20-%20ArgoCD%20route%20available.png)
+
+Click the link that provides access to the route, and the ArgoCD login page will open. You should click the "Log in via OpenShift" button. Authenticate using your OpenShift credentials. 
+
+![Installing pipelines operator](./images/gitops/06%20-%20ArgoCD%20login%20page.png)
+
+![Installing pipelines operator](./images/gitops/07%20-%20ArgoCD%20login%20with%20openshift.png)
+
+If everything is correct and the login is successful, you will be redirected to the ArgoCD main dashboard.
+
+![Installing pipelines operator](./images/gitops/08%20-%20ArgoCD%20main%20panel.png)
