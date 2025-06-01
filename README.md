@@ -175,4 +175,4 @@ Click the link that provides access to the route, and the ArgoCD login page will
 
 If everything is correct and the login is successful, you will be redirected to the ArgoCD main dashboard.
 
-![Installing pipelines operator](./images/gitops/08%20-%20ArgoCD%20main%20panel.png)
+![Installing pipelines operator](./images/gitops/08%20-%20ArgoCD%20main%20dashboard.png)
