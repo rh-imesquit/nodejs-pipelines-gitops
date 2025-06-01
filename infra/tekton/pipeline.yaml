@@ -10,6 +10,9 @@ spec:
     - name: image-name
       description: Nome da imagem que será gerada
       type: string
+    - name: image-tag
+      description: Tag da imagem que será gerada
+      type: string
   workspaces:
     - name: shared-workspace
 
@@ -45,7 +48,7 @@ spec:
           workspace: shared-workspace
       params:
         - name: DOCKERFILE
-          value: app/src/docker/Containerfile
+          value: app/Containerfile
         - name: CONTEXT
           value: app
         - name: IMAGE_TARBALL
@@ -54,12 +57,15 @@ spec:
     - name: push-image
       runAfter: [build-image]
       taskRef:
-        name: kaniko-push
+        name: push-image
       workspaces:
-        - name: output
+        - name: input
           workspace: shared-workspace
       params:
         - name: IMAGE
           value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/$(params.image-name)
         - name: IMAGE_TARBALL
-          value: /workspace/output/image.tar
+          value: /workspace/input/image.tar
+        - name: IMAGE_TAG
+          value: $(params.image-tag)
+          

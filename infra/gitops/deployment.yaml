@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodejs-lab-app
+  labels:
+    app: nodejs-lab-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodejs-lab-app
+  template:
+    metadata:
+      labels:
+        app: nodejs-lab-app
+    spec:
+      containers:
+        - name: nodejs-lab-app
+          image: image-registry.openshift-image-registry.svc:5000/app/nodejs-lab-app:{{TAG}}
+          ports:
+            - containerPort: 3000

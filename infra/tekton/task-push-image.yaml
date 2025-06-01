@@ -1,0 +1,30 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: push-image
+spec:
+  description: "Task para fazer push de imagem tarball com Skopeo"
+  params:
+    - name: IMAGE_TARBALL
+      description: Caminho da imagem tar
+      default: /workspace/input/image.tar
+    - name: IMAGE_DEST
+      description: Nome completo da imagem no registry
+      default: image-registry.openshift-image-registry.svc:5000/app/nodejs-lab-app
+    - name: IMAGE_TAG
+      description: Tag da imagem
+  workspaces:
+    - name: input
+      description: Local onde a imagem tar está armazenada
+  steps:
+    - name: push
+      image: quay.io/skopeo/stable:latest
+      script: |
+        echo "== Fazendo push com skopeo =="
+        skopeo copy \
+          --dest-tls-verify=false \
+          --insecure-policy \
+          docker-archive:$(params.IMAGE_TARBALL) \
+          docker://$(params.IMAGE_DEST):$(params.IMAGE_TAG) \
+          --dest-creds="unused:$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
+

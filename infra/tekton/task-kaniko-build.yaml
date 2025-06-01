@@ -7,10 +7,10 @@ spec:
   params:
     - name: DOCKERFILE
       description: Caminho até o Dockerfile
-      default: docker/Containerfile
+      default: app/Containerfile
     - name: CONTEXT
       description: Caminho do contexto de build
-      default: app/src
+      default: app
     - name: IMAGE_TARBALL
       description: Caminho de saída do tarball da imagem
       default: /workspace/output/image.tar

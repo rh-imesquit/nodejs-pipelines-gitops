@@ -10,6 +10,8 @@ spec:
       value: https://github.com/rh-imesquit/nodejs-pipelines-gitops.git
     - name: image-name
       value: nodejs-lab-app
+    - name: image-tag
+      value: v1.1
   workspaces:
     - name: shared-workspace
       volumeClaimTemplate:

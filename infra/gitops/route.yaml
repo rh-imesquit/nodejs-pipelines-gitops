@@ -1,0 +1,12 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: nodejs-lab-app
+spec:
+  to:
+    kind: Service
+    name: nodejs-lab-app
+  port:
+    targetPort: 3000
+  tls:
+    termination: edge

@@ -1,0 +1,30 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: update-manifests
+spec:
+  params:
+    - name: repo-url
+      type: string
+    - name: image-tag
+      type: string
+  workspaces:
+    - name: output
+  steps:
+    - name: git-clone
+      image: alpine/git
+      script: |
+        cd $(workspaces.output.path)
+        git clone $(params.repo-url) repo
+    - name: update-tag
+      image: registry.access.redhat.com/ubi9/ubi
+      script: |
+        sed -i "s/{{TAG}}/$(params.image-tag)/g" $(workspaces.output.path)/repo/deploy/overlays/dev/deployment.yaml
+    - name: git-commit
+      image: alpine/git
+      script: |
+        cd $(workspaces.output.path)/repo
+        git config user.email "pipeline@ci.com"
+        git config user.name "CI Pipeline"
+        git commit -am "Atualiza tag da imagem para $(params.image-tag)"
+        git push
