@@ -17,6 +17,6 @@ spec:
     spec:
       containers:
         - name: nodejs-lab-app
-          image: image-registry.openshift-image-registry.svc:5000/app/nodejs-lab-app:v.1.1
+          image: image-registry.openshift-image-registry.svc:5000/app/nodejs-lab-app:v1.1
           ports:
             - containerPort: 3000
