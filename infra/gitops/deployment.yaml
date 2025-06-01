@@ -4,6 +4,7 @@ metadata:
   name: nodejs-lab-app
   labels:
     app: nodejs-lab-app
+    version: '{{TAG}}'
 spec:
   replicas: 1
   selector:
