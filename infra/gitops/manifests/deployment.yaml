@@ -4,7 +4,7 @@ metadata:
   name: nodejs-lab-app
   labels:
     app: nodejs-lab-app
-    version: "v1.1"
+    version: v1.2
 spec:
   replicas: 1
   selector:
@@ -17,6 +17,6 @@ spec:
     spec:
       containers:
         - name: nodejs-lab-app
-          image: image-registry.openshift-image-registry.svc:5000/app/nodejs-lab-app:v1.1
+          image: image-registry.openshift-image-registry.svc:5000/app/nodejs-lab-app:v1.2
           ports:
             - containerPort: 3000
