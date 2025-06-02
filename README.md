@@ -147,6 +147,7 @@ $ oc policy add-role-to-user system:image-builder -z pipeline-sa -n app
 ```
 $ oc policy add-role-to-user system:image-pusher -z pipeline-sa -n app
 ```
+
 2. Now let's retrieve the internal registry address and the service account token. Finally, we'll store them in terminal variables.
 
 ```
@@ -209,6 +210,48 @@ If everything is correct and the login is successful, you will be redirected to 
 
 ![Installing pipelines operator](./images/gitops/08%20-%20ArgoCD%20main%20dashboard.png)
 
+Let's configure access to the repository where the deployment manifests for the application are located. In the left-hand menu, click the Settings option.
 
+![Installing pipelines operator](./images/gitops/09%20-%20ArgoCD%20settings.png)
 
+Click the Repositories option on the screen, then click the Connect Repo button at the top.
+
+Fill out the form with the values according to the following table. (Adjust to your information)
+
+|||
+|-|-|
+|||
+
+![Installing pipelines operator](./images/gitops/10%20-%20ArgoCD%20repository%20connection%20form.png)
+
+![Installing pipelines operator](./images/gitops/11%20-%20ArgoCD%20repository%20connected.png)
+
+After creating the connection, let's create an Application. Apply the [application.yaml](./infra/gitops/application.yaml) file with the following command:
+
+```
+$ oc apply -f ./infra/gitops/application.yaml -n openshift-gitops
+```
+
+At this point, the application will appear on the ArgoCD Applications dashboard and will begin the sync process. If the border of the application box is green, it means it was successfully synchronized.
+
+![Installing pipelines operator](./images/gitops/12%20-%20ArgoCD%20application%20synced.png)
+
+![Installing pipelines operator](./images/gitops/13%20-%20ArgoCD%20application%20synced.png)
+
+For the purposes of this lab, let's change the manifest monitoring process to every 30 seconds. Run the following command:
+
+```
 oc patch argocd openshift-gitops -n openshift-gitops --type=merge -p '{"spec":{"controller":{"env":[{"name":"ARGOCD_RECONCILIATION_TIMEOUT","value":"30s"}]}}}'
+```
+
+
+After synchronizing the repository through the Application in Argo, run the application pipeline again, but first update the version of the Node.js application.
+
+Wait for the pipeline to finish successfully. In a few moments, ArgoCD will detect the changes made to the repository and will replace the necessary resources for the Node.js application to run on OpenShift.
+
+Finally, check if the application pod is in Running status. Test access to the application's endpoints.
+
+
+![Installing pipelines operator](./images/gitops/14%20-%20Application%20running.png)
+
+
