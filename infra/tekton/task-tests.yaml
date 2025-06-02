@@ -10,7 +10,7 @@ spec:
   steps:
     - name: run-tests
       image: registry.access.redhat.com/ubi8/nodejs-18
-      workingDir: $(workspaces.source.path)
+      workingDir: $(workspaces.source.path)/app/src
       script: |
         #!/bin/bash
         echo "[INFO] Installing dependencies..."

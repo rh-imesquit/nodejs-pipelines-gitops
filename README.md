@@ -113,6 +113,11 @@ Let's grant the "pipeline" service account in the "app" namespace the "image-pus
 $ oc policy add-role-to-user system:image-pusher system:serviceaccount:app:pipeline
 ```
 
+```
+$ oc adm policy add-scc-to-user anyuid -z pipeline -n app
+
+```
+
 Finally, apply the pipeline run YAML so that the pipeline is instantiated and execution begins.
 
 ```
