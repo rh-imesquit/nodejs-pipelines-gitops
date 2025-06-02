@@ -10,8 +10,16 @@ spec:
       value: https://github.com/rh-imesquit/nodejs-pipelines-gitops.git
     - name: image-name
       value: nodejs-lab-app
-    - name: image-tag
-      value: v1.1
+    - name: image_tag
+      value: v1.0
+    - name: git-username
+      value: rh-imesquit
+    - name: git-email
+      value: imesquit@redhat.com
+    - name: git-repo
+      value: rh-imesquit/nodejs-pipelines-gitops
+    - name: git-branch
+      value: main
   workspaces:
     - name: shared-workspace
       volumeClaimTemplate:

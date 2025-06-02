@@ -3,28 +3,52 @@ kind: Task
 metadata:
   name: update-manifests
 spec:
+  description: "Updates the image tag in deployment.yaml and pushes it to the Git repository monitored by ArgoCD"
   params:
-    - name: repo-url
+    - name: IMAGE_TAG
+      description: Tag of the new image version
       type: string
-    - name: image-tag
+    - name: GIT_USERNAME
+      description: Git username
       type: string
+    - name: GIT_EMAIL
+      description: Git user email
+      type: string
+    - name: GIT_REPO
+      description: Repository path in the format 'user/repo'
+      type: string
+    - name: GIT_BRANCH
+      description: Branch to be updated
+      type: string
+      default: main
   workspaces:
-    - name: output
+    - name: source
+      description: Source code and versioned manifest files
+
   steps:
-    - name: git-clone
-      image: alpine/git
-      script: |
-        cd $(workspaces.output.path)
-        git clone $(params.repo-url) repo
-    - name: update-tag
+    - name: update-deployment
       image: registry.access.redhat.com/ubi9/ubi
+      workingDir: $(workspaces.source.path)
       script: |
-        sed -i "s/{{TAG}}/$(params.image-tag)/g" $(workspaces.output.path)/repo/deploy/overlays/dev/deployment.yaml
-    - name: git-commit
+        #!/bin/bash
+        echo "[INFO] Updating image tag to $(params.IMAGE_TAG)"
+        sed -i "s|image: .*|image: image-registry.openshift-image-registry.svc:5000/app/nodejs-lab-app:$(params.IMAGE_TAG)|" infra/gitops/manifests/deployment.yaml
+        sed -i "s|version: .*|version: $(params.IMAGE_TAG)|" infra/gitops/manifests/deployment.yaml
+
+    - name: git-commit-push
       image: alpine/git
+      workingDir: $(workspaces.source.path)
+      env:
+        - name: GIT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-token
+              key: token
       script: |
-        cd $(workspaces.output.path)/repo
-        git config user.email "pipeline@ci.com"
-        git config user.name "CI Pipeline"
-        git commit -am "Atualiza tag da imagem para $(params.image-tag)"
-        git push
+        #!/bin/sh
+        git config --global --add safe.directory /workspace/source
+        git config user.name "$(params.GIT_USERNAME)"
+        git config user.email "$(params.GIT_EMAIL)"
+        git add infra/gitops/manifests/deployment.yaml
+        git commit -m "ci: [OpenShift Pipelines] Updating manifest to version $(params.IMAGE_TAG)."
+        git push https://$(params.GIT_USERNAME):$GIT_TOKEN@github.com/$(params.GIT_REPO).git HEAD:$(params.GIT_BRANCH)

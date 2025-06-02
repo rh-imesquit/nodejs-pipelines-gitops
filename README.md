@@ -20,21 +20,19 @@
 
 First, let's create a project named app.
 
-![Creating app project](../images/3scale/01%20-%20Creating%203scale%20project.png)
-
-![Creating app project](../images/3scale/02%20-%20Creating%203scale%20project.png)
+![Creating app project](./images/pipelines/01%20-%20Creating%20the%20app%20project.png)
 
 Next, we need to install the operator. To do this, go to the left-hand side menu and access *Operators > Operator Hub*. In the search field, look for Pipelines and select the option **Red Hat OpenShift Pipelines**. Finally, click the *Install button*.
 
-![Installing pipelines operator](./images/pipelines/01%20-%20Installing%20Pipelines%20Operator.png)
+![Installing pipelines operator](./images/pipelines/02%20-%20Installing%20Pipelines%20Operator.png)
 
 A form will then be displayed with options to configure the operator installation. Keep all the default options and click the *Install button*.
 
-![Installing pipelines operator](./images/pipelines/02%20-%20Installing%20Pipelines%20Operator.png)
+![Installing pipelines operator](./images/pipelines/03%20-%20Installing%20Pipelines%20Operator.png)
 
 After installing the operator, the Pipelines option will appear in the left-hand menu of the OpenShift console, with the submenus Overview, Pipelines, Tasks, and Triggers.
 
-![Installing pipelines operator](./images/pipelines/03%20-%20Installing%20Pipelines%20Operator.png)
+![Installing pipelines operator](./images/pipelines/04%20-%20Installing%20Pipelines%20Operator.png)
 
 At this point, we will need to log in to OpenShift using the oc CLI.
 
@@ -61,7 +59,7 @@ $ oc apply -f pipeline.yaml -n app
 ```
 After applying the pipeline YAML, you can see in the OpenShift console that the resource has been created.
 
-![Installing pipelines operator](./images/pipelines/04%20-%20Creating%20pipeline.png)
+![Installing pipelines operator](./images/pipelines/05-%20Creating%20pipeline.png)
 
 ```
 $ oc apply -f task-git-clone.yaml -n app
@@ -76,9 +74,38 @@ $ oc apply -f task-kaniko-build.yaml -n app
 $ oc apply -f task-push-image.yaml -n app
 ```
 
+We will need to obtain the GitHub user access token for authentication during pipeline execution. The update manifests task will perform a commit to the repository with the resources for deploying the application.
+
+First, click the Settings option under the user account avatar. 
+
+![Installing pipelines operator](./images/pipelines/06%20-%20Github%20user%20options%20menu.png)
+
+On the settings page, click the Developer Settings option.
+
+![Installing pipelines operator](./images/pipelines/07%20-%20Choice%20Developer%20settings.png)
+
+
+Now click on Personal access tokens > Tokens (classic) and create a token with the desired duration and all repo permissions. At the end, a token will be displayed on the screen. Save this token, as it will only be shown at this moment. If you lose it, you will need to generate a new one.
+
+![Installing pipelines operator](./images/pipelines/08%20-%20Getting%20coderepo%20access%20token.png)
+
+
+Let's create a secret to store this token.
+
+```
+$ oc create secret generic github-token --from-literal=token=<SEU_TOKEN_GITHUB> -n app
+
+```
+
+Once the secret is applied, we can apply the task-update-manifests.yaml Task.
+
+```
+$ oc apply -f task-update-manifests.yaml -n app
+```
+
 After applying all the tasks, let's check in the OpenShift console that they have all been created.
 
-![Installing pipelines operator](./images/pipelines/05%20-%20Creating%20tasks.png)
+![Installing pipelines operator](./images/pipelines/06-%20Creating%20tasks.png)
 
 Let's grant the "pipeline" service account in the "app" namespace the "image-pusher" permission, that is, authorize this service account to push images to the OpenShift internal image registry.
 
@@ -92,11 +119,11 @@ Finally, apply the pipeline run YAML so that the pipeline is instantiated and ex
 $ oc apply -f pipeline-run.yaml -n app
 ```
 
-![Installing pipelines operator](./images/pipelines/06%20-%20Creating%20pipelinerun.png)
+![Installing pipelines operator](./images/pipelines/07-%20Creating%20pipelinerun.png)
 
 All the steps will be marked in green, indicating that the pipeline has been successfully executed.
 
-![Installing pipelines operator](./images/pipelines/07-%20Pipelinerun%20succeeded.png)
+![Installing pipelines operator](./images/pipelines/08-%20Pipelinerun%20succeeded.png)
 
 ### <h2 style="color: #e5b449;">How-to verify if the generated images were pushed to the container registry</h2>
 
@@ -176,3 +203,7 @@ Click the link that provides access to the route, and the ArgoCD login page will
 If everything is correct and the login is successful, you will be redirected to the ArgoCD main dashboard.
 
 ![Installing pipelines operator](./images/gitops/08%20-%20ArgoCD%20main%20dashboard.png)
+
+
+
+oc patch argocd openshift-gitops -n openshift-gitops --type=merge -p '{"spec":{"controller":{"env":[{"name":"ARGOCD_RECONCILIATION_TIMEOUT","value":"30s"}]}}}'

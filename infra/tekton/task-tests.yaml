@@ -3,18 +3,18 @@ kind: Task
 metadata:
   name: nodejs-tests
 spec:
-  description: "Roda os testes automatizados da aplicação Node.js com Jest"
+  description: "Run automated tests for Node.js app using Jest"
   workspaces:
     - name: source
-      description: Código-fonte clonado do repositório
+      description: Cloned source code from Git repository
   steps:
     - name: run-tests
-      image: node:22-alpine
-      workingDir: $(workspaces.source.path)/app/src
+      image: registry.access.redhat.com/ubi8/nodejs-18
+      workingDir: $(workspaces.source.path)
       script: |
-        #!/bin/sh
-        echo "Instalando dependências..."
+        #!/bin/bash
+        echo "[INFO] Installing dependencies..."
         npm install
 
-        echo "Executando testes..."
+        echo "[INFO] Running tests..."
         npm test

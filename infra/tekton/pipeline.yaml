@@ -2,17 +2,32 @@ apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: nodejs-ci-pipeline
+  namespace: app
 spec:
   params:
     - name: repo-url
-      description: URL do repositório Git
+      description: Git repository URL
       type: string
     - name: image-name
-      description: Nome da imagem que será gerada
+      description: Name of the image to be built
       type: string
-    - name: image-tag
-      description: Tag da imagem que será gerada
+    - name: image_tag
+      description: Tag for the generated image
       type: string
+    - name: git-username
+      description: Username for pushing to GitHub
+      type: string
+    - name: git-email
+      description: Git user email
+      type: string
+    - name: git-repo
+      description: Repository path in the format user/repo
+      type: string
+    - name: git-branch
+      description: Branch to be updated
+      type: string
+      default: main
+
   workspaces:
     - name: shared-workspace
 
@@ -63,9 +78,27 @@ spec:
           workspace: shared-workspace
       params:
         - name: IMAGE
-          value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/$(params.image-name)
+          value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/$(params.image-name):$(params.image_tag)
         - name: IMAGE_TARBALL
           value: /workspace/input/image.tar
         - name: IMAGE_TAG
-          value: $(params.image-tag)
-          
+          value: $(params.image_tag)
+
+    - name: update-manifests
+      runAfter: [push-image]
+      taskRef:
+        name: update-manifests
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+      params:
+        - name: IMAGE_TAG
+          value: $(params.image_tag)
+        - name: GIT_USERNAME
+          value: $(params.git-username)
+        - name: GIT_EMAIL
+          value: $(params.git-email)
+        - name: GIT_REPO
+          value: $(params.git-repo)
+        - name: GIT_BRANCH
+          value: $(params.git-branch)
